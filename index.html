@@ -1,390 +1,134 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
 
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-
-  <meta name="description" content="مساعد رياضيات تفاعلي لحل المعادلات والمتراجحات وفهم الجبر خطوة بخطوة.">
-
-  <title>Math Assistant | مساعد الرياضيات</title>
-
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Math Assistant Pro : résolvez, factorisez et développez vos expressions mathématiques étape par étape.">
+    <title>Math Assistant Pro | Assistant mathématique</title>
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
-
-  <header class="topbar">
-
-    <a class="brand" href="#" aria-label="Math Assistant">
-      <span class="brand-mark">∑</span>
-      <span>Math Assistant</span>
-    </a>
-
-    <span class="top-caption">
-      افهم الرياضيات، لا تحفظها فقط
-    </span>
-
-  </header>
-
-
-  <main class="container">
-
-    <section class="hero">
-
-      <div class="hero-copy">
-
-        <span class="eyebrow">
-          مساعدك الرياضي الشخصي
-        </span>
-
-        <h1>
-          كل مسألة لها
-          <br>
-          <span>طريق إلى الفهم.</span>
-        </h1>
-
-        <p>
-          اختر ما تريد تعلّمه، وسنرشدك إلى الأداة المناسبة
-          ثم نعرض لك خطوات الحل.
-        </p>
-
-      </div>
-
-
-      <div class="hero-equation" aria-label="معادلة رياضية">
-
-        <span>ax² + bx + c = 0</span>
-
-        <strong>Δ = b² − 4ac</strong>
-
-        <small>الجبر خطوة بخطوة</small>
-
-      </div>
-
-    </section>
-
-
-    <section class="welcome panel" id="welcomePanel">
-
-      <div class="welcome-orb">∑</div>
-
-      <div class="welcome-text">
-
-        <span class="eyebrow">ابدأ من هنا</span>
-
-        <h2>مرحبًا! أنا مساعدك الرياضي.</h2>
-
-        <p>
-          اضغط على الزر لأرحّب بك صوتيًا،
-          ثم اختر ما تحتاج إليه.
-        </p>
-
-      </div>
-
-      <button class="hi-button" id="hiButton" type="button">
-        HI <span>▶</span>
-      </button>
-
-      <button
-        class="sound-toggle"
-        id="stopVoiceButton"
-        type="button"
-        aria-label="إيقاف الصوت"
-        title="إيقاف الصوت"
-      >
-        ■
-      </button>
-
-    </section>
-
-
-    <section
-      class="assistant panel"
-      id="assistantPanel"
-      aria-live="polite"
-    >
-
-      <div class="section-heading">
-
-        <div>
-
-          <span class="eyebrow">
-            المساعد التفاعلي
-          </span>
-
-          <h2 id="assistantTitle">
-            كيف يمكنني مساعدتك؟
-          </h2>
-
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo">∑</div>
+            <span>Math Assistant <strong>Pro</strong></span>
         </div>
-
-        <button
-          class="text-button"
-          id="restartAssistant"
-          type="button"
-        >
-          إعادة البداية ↺
-        </button>
-
-      </div>
-
-
-      <p class="assistant-message" id="assistantMessage">
-        اختر أحد الخيارات التالية للمتابعة.
-      </p>
-
-
-      <div class="choice-grid" id="choiceGrid">
-
-        <button class="choice" data-choice="solve">
-          أريد حل تمرين رياضيات
-        </button>
-
-        <button class="choice" data-choice="learn">
-          أريد فهم درس
-        </button>
-
-        <button class="choice" data-choice="algebra">
-          أريد أدوات الجبر
-        </button>
-
-        <button class="choice" data-choice="other">
-          لست متأكدًا مما أحتاجه
-        </button>
-
-      </div>
-
-
-      <div class="assistant-footer">
-
-        <span id="voiceStatus">
-          الصوت يعمل بعد الضغط على زر HI إذا كان متاحًا في متصفحك.
-        </span>
-
-        <button
-          class="text-button"
-          id="repeatVoice"
-          type="button"
-        >
-          إعادة قراءة الرسالة 🔊
-        </button>
-
-      </div>
-
-    </section>
-
-
-    <section class="workspace panel" id="mathWorkspace">
-
-      <div class="section-heading">
-
-        <div>
-
-          <span class="eyebrow">مساحة العمل</span>
-
-          <h2>أدوات الرياضيات</h2>
-
-          <p class="muted">
-            يمكنك فتح الأداة مباشرة أو الوصول إليها من المساعد التفاعلي.
-          </p>
-
-        </div>
-
-        <span class="status-pill">
-          <i></i> جاهز للعمل
-        </span>
-
-      </div>
-
-
-      <nav class="tabs" aria-label="أدوات الرياضيات">
-
-        <button class="tab active" data-mode="equation" type="button">
-          معادلة
-        </button>
-
-        <button class="tab" data-mode="inequality" type="button">
-          متراجحة
-        </button>
-
-        <button class="tab" data-mode="factor" type="button">
-          تحليل
-        </button>
-
-        <button class="tab" data-mode="expand" type="button">
-          نشر
-        </button>
-
-      </nav>
-
-
-      <form id="mathForm">
-
-        <div id="equationFields" class="field-grid">
-
-          <label>
-            الطرف الأيسر
-
-            <input
-              id="leftExpr"
-              value="5*x - 3"
-              autocomplete="off"
-              spellcheck="false"
-            >
-
-          </label>
-
-
-          <label>
-            الطرف الأيمن
-
-            <input
-              id="rightExpr"
-              value="x + 1/2"
-              autocomplete="off"
-              spellcheck="false"
-            >
-
-          </label>
-
-        </div>
-
-
-        <div id="singleField" hidden>
-
-          <label id="expressionLabel" for="expression">
-            التعبير الرياضي
-          </label>
-
-          <input
-            id="expression"
-            value="x^2 - 9"
-            autocomplete="off"
-            spellcheck="false"
-          >
-
-        </div>
-
-
-        <div class="examples" id="examples">
-
-          <span>أمثلة:</span>
-
-          <button type="button" data-example="linear">
-            معادلة خطية
-          </button>
-
-          <button type="button" data-example="quadratic">
-            معادلة تربيعية
-          </button>
-
-          <button type="button" data-example="difference">
-            فرق مربعين
-          </button>
-
-        </div>
-
-
-        <button class="primary-button" id="solveButton" type="submit">
-          احسب الحل ←
-        </button>
-
-      </form>
-
-
-      <section
-        class="result"
-        id="result"
-        hidden
-        aria-live="polite"
-      >
-
-        <div class="result-heading">
-
-          <span class="eyebrow" id="resultTitle">
-            النتيجة
-          </span>
-
-          <button
-            class="text-button"
-            id="copyResult"
-            type="button"
-          >
-            نسخ النتيجة
-          </button>
-
-        </div>
-
-
-        <div class="answer" id="answer"></div>
-
-        <h3>خطوات الحل</h3>
-
-        <ol id="steps"></ol>
-
-      </section>
-
-
-      <p
-        class="error-message"
-        id="errorMessage"
-        role="alert"
-        hidden
-      ></p>
-
-    </section>
-
-
-    <section class="feature-grid">
-
-      <article class="feature-card">
-
-        <span>01</span>
-
-        <h3>تعلّم تفاعلي</h3>
-
-        <p>
-          أسئلة قصيرة تقودك إلى الأداة المناسبة.
-        </p>
-
-      </article>
-
-
-      <article class="feature-card">
-
-        <span>02</span>
-
-        <h3>خطوات واضحة</h3>
-
-        <p>
-          اعرض خطوات الحل بدل الاكتفاء بالنتيجة.
-        </p>
-
-      </article>
-
-
-      <article class="feature-card">
-
-        <span>03</span>
-
-        <h3>صوت اختياري</h3>
-
-        <p>
-          استمع إلى الترحيب ورسائل المساعد عند دعم المتصفح.
-        </p>
-
-      </article>
-
-    </section>
-
-  </main>
-
-
-  <footer>
-    Math Assistant · مشروع تعليمي · راجع خطوات الحل وتحقق من النتائج المهمة.
-  </footer>
-
+        <span class="top-note">Votre assistant mathématique intelligent</span>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div>
+                <div class="eyebrow">APPRENEZ LES MATHÉMATIQUES AUTREMENT</div>
+                <h1>Comprenez les maths,<br>étape par étape.</h1>
+                <p>
+                    Résolvez vos équations, factorisez vos expressions
+                    et découvrez les étapes essentielles de chaque calcul.
+                </p>
+            </div>
+
+            <div class="hero-card">
+                <div class="formula">
+                    ax² + bx + c = 0<br>
+                    <span>Δ = b² − 4ac</span><br>
+                    x = (−b ± √Δ) / 2a
+                </div>
+                <div class="hero-caption">Les mathématiques deviennent plus simples.</div>
+            </div>
+        </section>
+
+        <section class="workspace">
+            <div class="panel">
+                <h2>Espace de calcul</h2>
+                <p class="muted">Choisissez une opération et entrez votre expression.</p>
+
+                <div class="tabs">
+                    <button class="tab active" data-mode="equation">Équation</button>
+                    <button class="tab" data-mode="factor">Factorisation</button>
+                    <button class="tab" data-mode="expand">Développement</button>
+                    <button class="tab" data-mode="simplify">Simplification</button>
+                </div>
+
+                <div id="equationFields">
+                    <label for="leftExpr">Membre de gauche</label>
+                    <input id="leftExpr" value="5*x - 3">
+
+                    <label for="rightExpr">Membre de droite</label>
+                    <input id="rightExpr" value="x + 1/2">
+                </div>
+
+                <div id="singleField" hidden>
+                    <label for="expression">Expression mathématique</label>
+                    <input id="expression" value="x^2 - 9">
+                </div>
+
+                <button class="primary-btn" id="solveBtn">
+                    Calculer étape par étape →
+                </button>
+
+                <div class="examples">
+                    <span>Exemples :</span>
+                    <button class="example" data-example="linear">Équation linéaire</button>
+                    <button class="example" data-example="quadratic">Équation du second degré</button>
+                    <button class="example" data-example="difference">Différence de deux carrés</button>
+                </div>
+
+                <div class="result" id="result" aria-live="polite">
+                    <div class="result-title" id="resultTitle">Résultat</div>
+                    <div class="answer" id="answer"></div>
+                    <div class="steps" id="steps"></div>
+                </div>
+            </div>
+
+            <aside class="panel">
+                <h2>Pourquoi Math Assistant Pro ?</h2>
+                <p class="muted">
+                    Un outil conçu pour vous aider à comprendre
+                    les mathématiques, et pas seulement à obtenir une réponse.
+                </p>
+
+                <div class="side-list">
+                    <div class="feature">
+                        <div class="feature-icon">x</div>
+                        <div>
+                            <strong>Résolution d'équations</strong>
+                            <p>Résolvez des équations avec une inconnue.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">↗</div>
+                        <div>
+                            <strong>Outils algébriques</strong>
+                            <p>Factorisez et développez vos expressions.</p>
+                        </div>
+                    </div>
+
+                    <div class="feature">
+                        <div class="feature-icon">✓</div>
+                        <div>
+                            <strong>Explications</strong>
+                            <p>Découvrez les principales étapes du calcul.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notice">
+                    <strong>Remarque :</strong>
+                    Les étapes affichées sont des explications générales.
+                    Vérifiez les résultats importants et demandez une démonstration
+                    détaillée lorsque cela est nécessaire.
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <footer>
+        Math Assistant Pro · Un projet éducatif dédié aux mathématiques.
+    </footer>
+
+    <script src="/script.js"></script>
 </body>
 </html>
