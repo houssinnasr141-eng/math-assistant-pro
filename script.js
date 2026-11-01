@@ -1,552 +1,158 @@
-(() => {
-  "use strict";
 
-  // إذا كان الموقع وواجهة API منشورين في خدمتين منفصلتين،
-  // ضع هنا رابط خادم Flask الصحيح.
-  const API_BASE_URL = "https://math-assistant-api.onrender.com";
+const $ = id => document.getElementById(id);
 
-  const $ = (id) => document.getElementById(id);
+let mode = "equation";
 
-  let mode = "equation";
+const tabs = document.querySelectorAll(".tab");
 
-  let currentSpeechText =
-    "مرحبًا بك في مساعد الرياضيات. كيف يمكنني مساعدتك اليوم؟";
+function setMode(newMode) {
+    mode = newMode;
 
-
-  // مسارات المحادثة التفاعلية
-  const conversation = {
-
-    start: {
-      title: "كيف يمكنني مساعدتك؟",
-
-      message:
-        "اختر ما تريد فعله، وسأرشدك إلى الخطوة التالية.",
-
-      choices: [
-        ["أريد حل تمرين رياضيات", "solve"],
-        ["أريد فهم درس", "learn"],
-        ["أريد أدوات الجبر", "algebra"],
-        ["لست متأكدًا", "other"]
-      ]
-    },
-
-
-    solve: {
-      title: "ما نوع التمرين؟",
-
-      message:
-        "اختر نوع المسألة التي تعمل عليها.",
-
-      choices: [
-        ["معادلة", "equation"],
-        ["متراجحة", "inequality"],
-        ["تحليل تعبير", "factor"],
-        ["نشر تعبير", "expand"],
-        ["العودة", "start"]
-      ]
-    },
-
-
-    learn: {
-      title: "ما الموضوع الذي تريد فهمه؟",
-
-      message:
-        "يمكنك اختيار موضوع، ثم فتح الأداة المرتبطة به إن وجدت.",
-
-      choices: [
-        ["المعادلات", "equation"],
-        ["المتراجحات", "inequality"],
-        ["التحليل", "factor"],
-        ["النشر", "expand"],
-        ["العودة", "start"]
-      ]
-    },
-
-
-    algebra: {
-      title: "اختر أداة الجبر",
-
-      message:
-        "هذه الأدوات متاحة حاليًا داخل الموقع.",
-
-      choices: [
-        ["حل معادلة", "equation"],
-        ["حل متراجحة", "inequality"],
-        ["تحليل", "factor"],
-        ["نشر", "expand"],
-        ["العودة", "start"]
-      ]
-    },
-
-
-    other: {
-      title: "لا مشكلة!",
-
-      message:
-        "يمكنك البدء بأحد هذه الخيارات، وسننتقل معك خطوة بخطوة.",
-
-      choices: [
-        ["أريد حل تمرين", "solve"],
-        ["أريد فهم درس", "learn"],
-        ["أريد أدوات الجبر", "algebra"],
-        ["ابدأ من جديد", "start"]
-      ]
-    }
-
-  };
-
-
-  const modeLabels = {
-    equation: "حل معادلة",
-    inequality: "حل متراجحة",
-    factor: "تحليل",
-    expand: "نشر"
-  };
-
-
-  // القراءة الصوتية
-  function speak(text) {
-
-    currentSpeechText = text;
-
-    if (!("speechSynthesis" in window)) {
-
-      $("voiceStatus").textContent =
-        "متصفحك لا يدعم القراءة الصوتية.";
-
-      return;
-    }
-
-    window.speechSynthesis.cancel();
-
-    const utterance = new SpeechSynthesisUtterance(text);
-
-    utterance.lang = "ar";
-    utterance.rate = 0.92;
-    utterance.pitch = 1;
-
-    utterance.onstart = () => {
-      $("voiceStatus").textContent =
-        "المساعد يتحدث الآن…";
-    };
-
-    utterance.onend = () => {
-      $("voiceStatus").textContent =
-        "انتهت القراءة الصوتية.";
-    };
-
-    utterance.onerror = () => {
-      $("voiceStatus").textContent =
-        "تعذّر تشغيل الصوت في هذا المتصفح.";
-    };
-
-    window.speechSynthesis.speak(utterance);
-  }
-
-
-  // عرض المحادثة
-  function renderConversation(key, shouldSpeak = false) {
-
-    const state = conversation[key] || conversation.start;
-
-    $("assistantTitle").textContent = state.title;
-
-    $("assistantMessage").textContent = state.message;
-
-    const grid = $("choiceGrid");
-
-    grid.replaceChildren();
-
-
-    state.choices.forEach(([label, next]) => {
-
-      const button = document.createElement("button");
-
-      button.type = "button";
-      button.className = "choice";
-      button.textContent = label;
-
-
-      button.addEventListener("click", () => {
-
-        if (modeLabels[next]) {
-
-          setMode(next);
-
-          $("mathWorkspace").scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-
-          $("assistantTitle").textContent =
-            "تم اختيار: " + modeLabels[next];
-
-          $("assistantMessage").textContent =
-            "أدخل المسألة في مساحة العمل، ثم اضغط زر الحساب.";
-
-          speak(
-            "تم اختيار " +
-            modeLabels[next] +
-            ". أدخل المسألة في مساحة العمل."
-          );
-
-        } else {
-
-          renderConversation(next, true);
-
-        }
-
-      });
-
-
-      grid.appendChild(button);
-
+    tabs.forEach(tab => {
+        tab.classList.toggle("active", tab.dataset.mode === mode);
     });
 
+    $("equationFields").hidden = mode !== "equation";
+    $("singleField").hidden = mode === "equation";
 
-    if (shouldSpeak) {
-      speak(state.message);
-    }
+    const labels = {
+        equation: "Calculer étape par étape →",
+        factor: "Factoriser l'expression →",
+        expand: "Développer l'expression →",
+        simplify: "Simplifier l'expression →"
+    };
 
-  }
-
-
-  // تغيير أداة الرياضيات
-  function setMode(nextMode) {
-
-    mode = nextMode;
-
-    document.querySelectorAll(".tab").forEach((tab) => {
-
-      tab.classList.toggle(
-        "active",
-        tab.dataset.mode === mode
-      );
-
-    });
-
-
-    $("equationFields").hidden =
-      mode !== "equation";
-
-    $("singleField").hidden =
-      mode === "equation";
-
-
-    $("expressionLabel").textContent =
-      mode === "inequality"
-        ? "المتراجحة"
-        : "التعبير الرياضي";
-
-
-    $("expression").placeholder =
-      mode === "inequality"
-        ? "مثال: x + 2 > 5"
-        : "مثال: x^2 - 9";
-
+    $("solveBtn").textContent = labels[mode];
 
     $("expression").value =
-      mode === "factor"
-        ? "x^2 - 9"
-        : mode === "expand"
-        ? "(x + 2)^2"
-        : mode === "inequality"
-        ? "x + 2 > 5"
-        : $("expression").value;
+        mode === "factor" ? "x^2 - 9" : "(x + 2)^2";
+
+    $("result").classList.remove("show");
+}
+
+tabs.forEach(tab => {
+    tab.addEventListener("click", () => {
+        setMode(tab.dataset.mode);
+    });
+});
 
 
-    $("solveButton").textContent = ({
-      equation: "حل المعادلة ←",
-      inequality: "حل المتراجحة ←",
-      factor: "حلّل التعبير ←",
-      expand: "انشر التعبير ←"
-    })[mode];
-
-
-    hideResult();
-
-  }
-
-
-  // إخفاء النتائج
-  function hideResult() {
-
-    $("result").hidden = true;
-
-    $("errorMessage").hidden = true;
-
-  }
-
-
-  // عرض النتيجة
-  function showResult(data) {
-
-    $("resultTitle").textContent =
-      data.title || "النتيجة";
-
-
-    const answer = Array.isArray(data.answer)
-      ? (
-          data.answer.length
-            ? data.answer.join(" ، ")
-            : "لا توجد حلول"
-        )
-      : String(data.answer);
-
-
+function showResult(title, answer, steps) {
+    $("resultTitle").textContent = title;
     $("answer").textContent = answer;
 
+    $("steps").replaceChildren();
 
-    const list = $("steps");
-
-    list.replaceChildren();
-
-
-    (data.steps || []).forEach((step) => {
-
-      const item = document.createElement("li");
-
-      item.textContent = step;
-
-      list.appendChild(item);
-
+    steps.forEach(step => {
+        const line = document.createElement("div");
+        line.textContent = "• " + step;
+        $("steps").appendChild(line);
     });
 
-
-    $("result").hidden = false;
-
-    $("errorMessage").hidden = true;
-
-  }
+    $("result").classList.add("show");
+}
 
 
-  // عرض الأخطاء
-  function showError(message) {
+async function calculate() {
+    const button = $("solveBtn");
 
-    $("errorMessage").textContent = message;
-
-    $("errorMessage").hidden = false;
-
-    $("result").hidden = true;
-
-  }
-
-
-  // إرسال العملية الرياضية إلى Flask
-  async function calculate(event) {
-
-    event.preventDefault();
-
-    hideResult();
-
-    const payload = { mode };
-
+    let payload = {
+        operation: mode
+    };
 
     if (mode === "equation") {
-
-      payload.left = $("leftExpr").value;
-
-      payload.right = $("rightExpr").value;
-
+        payload.left = $("leftExpr").value.trim();
+        payload.right = $("rightExpr").value.trim();
     } else {
-
-      payload.expression = $("expression").value;
-
+        payload.expression = $("expression").value.trim();
     }
 
-
-    $("solveButton").disabled = true;
-
-    $("solveButton").textContent = "جارٍ الحساب…";
-
+    button.disabled = true;
+    button.textContent = "Calcul en cours...";
 
     try {
+        const response = await fetch("/api/calculate", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        });
 
-      const response = await fetch(
-        `${API_BASE_URL}/api/calculate`,
-        {
-          method: "POST",
+        const data = await response.json();
 
-          headers: {
-            "Content-Type": "application/json"
-          },
-
-          body: JSON.stringify(payload)
+        if (!response.ok || !data.success) {
+            throw new Error(data.error || "Une erreur est survenue.");
         }
-      );
 
+        let answer;
 
-      const data = await response.json();
+        if (Array.isArray(data.result)) {
+            answer = data.result.length
+                ? data.result.map((value, index) =>
+                    `x${index + 1} = ${value}`
+                  ).join(" ; ")
+                : "Aucune solution trouvée.";
+        } else {
+            answer = data.result;
+        }
 
-
-      if (!response.ok || !data.success) {
-
-        throw new Error(
-          data.error || "حدث خطأ أثناء الحساب."
-        );
-
-      }
-
-
-      showResult(data);
-
+        showResult("Résultat", answer, data.steps);
 
     } catch (error) {
-
-      showError(
-        error.message ||
-        "تعذّر الاتصال بالخادم. تحقق من اتصال الإنترنت ورابط API."
-      );
-
+        showResult(
+            "Erreur",
+            "Impossible d'effectuer le calcul.",
+            [error.message]
+        );
     } finally {
+        button.disabled = false;
 
-      $("solveButton").disabled = false;
+        const labels = {
+            equation: "Calculer étape par étape →",
+            factor: "Factoriser l'expression →",
+            expand: "Développer l'expression →",
+            simplify: "Simplifier l'expression →"
+        };
 
-      $("solveButton").textContent = ({
-        equation: "حل المعادلة ←",
-        inequality: "حل المتراجحة ←",
-        factor: "حلّل التعبير ←",
-        expand: "انشر التعبير ←"
-      })[mode];
-
+        button.textContent = labels[mode];
     }
-
-  }
-
-
-  // زر الترحيب HI
-  $("hiButton").addEventListener("click", () => {
-
-    speak(
-      "مرحبًا بك في مساعد الرياضيات. " +
-      "يسعدني مساعدتك على فهم الرياضيات خطوة بخطوة. " +
-      "اختر ما تحتاج إليه."
-    );
-
-    $("assistantPanel").scrollIntoView({
-      behavior: "smooth",
-      block: "center"
-    });
-
-  });
+}
 
 
-  // إيقاف الصوت
-  $("stopVoiceButton").addEventListener("click", () => {
-
-    if ("speechSynthesis" in window) {
-
-      window.speechSynthesis.cancel();
-
-    }
-
-    $("voiceStatus").textContent =
-      "تم إيقاف الصوت.";
-
-  });
+$("solveBtn").addEventListener("click", calculate);
 
 
-  // إعادة قراءة الرسالة
-  $("repeatVoice").addEventListener("click", () => {
-
-    speak(currentSpeechText);
-
-  });
-
-
-  // إعادة المحادثة إلى البداية
-  $("restartAssistant").addEventListener("click", () => {
-
-    renderConversation("start", true);
-
-  });
-
-
-  // أزرار الأدوات
-  document.querySelectorAll(".tab").forEach((tab) => {
-
-    tab.addEventListener("click", () => {
-
-      setMode(tab.dataset.mode);
-
-    });
-
-  });
-
-
-  // الأمثلة الجاهزة
-  document.querySelectorAll("[data-example]").forEach((button) => {
-
+document.querySelectorAll(".example").forEach(button => {
     button.addEventListener("click", () => {
+        const example = button.dataset.example;
 
-      const example = button.dataset.example;
+        if (example === "linear") {
+            setMode("equation");
+            $("leftExpr").value = "5*x - 3";
+            $("rightExpr").value = "x + 1/2";
+        }
 
+        if (example === "quadratic") {
+            setMode("equation");
+            $("leftExpr").value = "x^2 - 5*x + 6";
+            $("rightExpr").value = "0";
+        }
 
-      if (example === "linear") {
+        if (example === "difference") {
+            setMode("factor");
+            $("expression").value = "x^2 - 9";
+        }
 
-        setMode("equation");
-
-        $("leftExpr").value = "5*x - 3";
-
-        $("rightExpr").value = "x + 1/2";
-
-      }
-
-      else if (example === "quadratic") {
-
-        setMode("equation");
-
-        $("leftExpr").value = "x^2 - 5*x + 6";
-
-        $("rightExpr").value = "0";
-
-      }
-
-      else {
-
-        setMode("factor");
-
-        $("expression").value = "x^2 - 9";
-
-      }
-
+        calculate();
     });
-
-  });
-
-
-  // إرسال النموذج
-  $("mathForm").addEventListener("submit", calculate);
+});
 
 
-  // نسخ النتيجة
-  $("copyResult").addEventListener("click", async () => {
-
-    const text =
-      `${$("resultTitle").textContent}\n${$("answer").textContent}`;
-
-
-    try {
-
-      await navigator.clipboard.writeText(text);
-
-      $("copyResult").textContent = "تم النسخ ✓";
-
-      setTimeout(
-        () => $("copyResult").textContent = "نسخ النتيجة",
-        1600
-      );
-
-    } catch {
-
-      $("copyResult").textContent = "تعذّر النسخ";
-
-    }
-
-  });
-
-
-  // بدء المساعد
-  renderConversation("start");
-
-})();
+["leftExpr", "rightExpr", "expression"].forEach(id => {
+    $(id).addEventListener("keydown", event => {
+        if (event.key === "Enter") {
+            calculate();
+        }
+    });
+});
