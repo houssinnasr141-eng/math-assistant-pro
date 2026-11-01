@@ -18,19 +18,19 @@ ALLOWED_EXPRESSION = re.compile(r"^[0-9xX+\-*/().\s^<>=!]+$")
 
 def parse_expression(value):
     if not isinstance(value, str):
-        raise ValueError("يجب إدخال التعبير كنص.")
+        raise ValueError("L'expression doit être saisie sous forme de texte.")
 
     value = value.strip()
 
     if not value:
-        raise ValueError("الرجاء إدخال تعبير رياضي.")
+        raise ValueError("Veuillez saisir une expression mathématique.")
 
     if len(value) > MAX_EXPRESSION_LENGTH:
-        raise ValueError("التعبير طويل جدًا.")
+        raise ValueError("L'expression est très longue.")
 
     if not ALLOWED_EXPRESSION.fullmatch(value):
         raise ValueError(
-            "استعمل الأرقام والمتغير x والعمليات الرياضية المسموحة فقط."
+            "Utilisez uniquement des nombres, la variable x et les opérations mathématiques autorisées."
         )
 
     return sympify(value, locals={"x": x}, convert_xor=True)
@@ -71,7 +71,7 @@ def calculate():
         if not isinstance(data, dict):
             return jsonify({
                 "success": False,
-                "error": "البيانات المرسلة غير صالحة.",
+                "error": "Utilisez uniquement des nombres, la variable x et les opérations mathématiques autorisées. Les données transmises ne sont pas valides.",
                 "steps": []
             }), 400
 
@@ -87,13 +87,13 @@ def calculate():
             solutions = solve(equation, x)
 
             return success(
-                "حل المعادلة",
+                "Résoudre l'équation",
                 [str(item) for item in solutions],
                 [
-                    f"الطرف الأيسر: {left}",
-                    f"الطرف الأيمن: {right}",
-                    f"المعادلة: {equation}",
-                    f"الحلول: {solutions}"
+                    f"Le côté gauche: {left}",
+                    f"Le côté droit: {right}",
+                    f"L'équation: {equation}",
+                    f"Les solutions: {solutions}"
                 ]
             )
 
@@ -105,7 +105,7 @@ def calculate():
 
             if not isinstance(relation, Relational):
                 raise ValueError(
-                    "أدخل متراجحة تحتوي على < أو > أو <= أو >=."
+                    "Saisissez une inéquation contenant <, >, <= ou >=."
                 )
 
             result = solve_univariate_inequality(
@@ -115,11 +115,11 @@ def calculate():
             )
 
             return success(
-                "حل المتراجحة",
+                "Résoudre l'inéquation",
                 str(result),
                 [
-                    f"المتراجحة: {relation}",
-                    f"مجموعة الحلول: {result}"
+                    f"L'inéquation: {relation}",
+                    f"Ensemble des solutions: {result}"
                 ]
             )
 
@@ -137,7 +137,7 @@ def calculate():
             )
 
             title = (
-                "تحليل التعبير"
+                "Analyse de l'expression"
                 if mode == "factor"
                 else "نشر التعبير"
             )
@@ -146,14 +146,14 @@ def calculate():
                 title,
                 str(result),
                 [
-                    f"التعبير الأصلي: {expression}",
-                    f"النتيجة: {result}"
+                    f"L'expression originale: {expression}",
+                    f"Le résultat: {result}"
                 ]
             )
 
         return jsonify({
             "success": False,
-            "error": "العملية المطلوبة غير معروفة.",
+            "error": "L'opération demandée est inconnue..",
             "steps": []
         }), 400
 
@@ -162,7 +162,7 @@ def calculate():
         message = (
             str(error)
             if isinstance(error, ValueError)
-            else "تعذّرت معالجة التعبير. تحقق من الصياغة الرياضية."
+            else "Impossible de traiter l'expression. Vérifiez la formulation mathématique."
         )
 
         return jsonify({
